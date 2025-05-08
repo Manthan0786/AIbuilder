@@ -1,0 +1,2 @@
+# Ignore Python backend .env
+backend/app/.env
