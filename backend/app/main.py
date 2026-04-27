@@ -9,7 +9,8 @@ from .defaults.reactPrompt import basePrompt as reactBasePrompt
 from .defaults.nodePrompt import basePrompt as nodeBasePrompt
 from .defaults.prompt import BASE_PROMPT, generate_system_prompt
 
-load_dotenv()
+# Always load env vars from backend/app/.env regardless of run directory.
+load_dotenv(Path(__file__).with_name(".env"))
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 CORS(app)
@@ -24,17 +25,20 @@ def home():
 
 @app.post("/template")
 def template_post():
-    prompt = request.get_json()
-    data = prompt['prompt']
-    response = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=1024,
-        messages=[ 
-            {"role": "user", "content": data}
-        ],
-        system= "Return either node or react based on what do you think this project should be. Only return a single word either 'node' or 'react'. Do not return anything extra"
-    )
-    answer = (response.content)[0].text
+    try:
+        prompt = request.get_json()
+        data = prompt['prompt']
+        response = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1024,
+            messages=[ 
+                {"role": "user", "content": data}
+            ],
+            system= "Return either node or react based on what do you think this project should be. Only return a single word either 'node' or 'react'. Do not return anything extra"
+        )
+        answer = (response.content)[0].text
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
     if answer == 'react':
         response_data = jsonify({
@@ -59,8 +63,7 @@ def continue_chat():
     if data:
         return Response(generate_stream(data), mimetype="text/event-stream")
  except Exception as e:
-        print(f"Error occurred: {e}")
-        return jsonify({"error": "An error occurred while processing the request."}), 500
+        return jsonify({"error": str(e)}), 500
 
 def generate_stream(message):
     print('Inside function')
@@ -72,7 +75,8 @@ def generate_stream(message):
     ) as stream:
       for text in stream.text_stream:
         print(text, end="", flush=True)
-        yield json.dumps({"text": text})
+        # Send newline-delimited JSON so the frontend can parse stream chunks safely.
+        yield json.dumps({"text": text}) + "\n"
         
         
         

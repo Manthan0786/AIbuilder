@@ -7,27 +7,30 @@ export function StepsList({ steps, currentstep, onStepClick }) {
     });
     const uniquesteps = Array.from(uniqueSteps.values())
     return (
-        <div className="bg-gray-900 rounded-lg shadow-lg p-4">
-            <h2 className="text-lg font-semibold mb-4 text-gray-100">Build Steps</h2>
-            <div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">Build Steps</h2>
+            <div className="space-y-2">
                 {
                     uniquesteps.map((step, index) =>
                         <div
                             key={index}
-                            className={`flex items-center justify-between p-2 border-b border-gray-700 cursor-pointer ${currentstep === index ? 'bg-gray-800' : ''}`}
+                            className={`cursor-pointer rounded-xl border p-3 transition ${currentstep === index
+                                    ? 'border-blue-200 bg-blue-50'
+                                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                                }`}
                             onClick={() => onStepClick(index)}>
                             <div className="flex items-center gap-2">
                                 {step.status === 'completed' ? (
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
+                                    <CheckCircle className="h-4 w-4 text-emerald-500" />
                                 ) : step.status === 'in-progress' ? (
-                                    <Clock className="w-5 h-5 text-blue-400" />
+                                    <Clock className="h-5 w-5 text-blue-500" />
                                 ) : (
-                                    <Circle className="w-2 h-2 text-gray-600" />
+                                    <Circle className="h-2 w-2 text-slate-400" />
                                 )}
                                 <div>
-                                    <h4 className="font-medium text-gray-100">{step.title}</h4>
-                                    <p className="text-sm text-gray-400 mt-2">{step.description}</p>
-                                    {step.type === 'RunScript' && <p className='bg-black flex'>{step.code}</p>}
+                                    <h4 className="font-medium text-slate-800">{step.title}</h4>
+                                    <p className="mt-1 text-sm text-slate-500">{step.description}</p>
+                                    {step.type === 'RunScript' && <p className='mt-2 rounded-md bg-slate-900 px-2 py-1 font-mono text-xs text-slate-100'>{step.code}</p>}
                                 </div>
                             </div>
                         </div>
